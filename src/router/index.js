@@ -32,12 +32,12 @@ const router = createRouter({
           component: () => import('@/modules/Dashboard/views/DashboardPage.vue'),
           meta: { requiresAuth: true },
         },
-        // {
-        //   path: 'products',
-        //   name: 'products',
-        //   component: () => import('@/modules/Products/views/ProductListPage.vue'),
-        //   meta: { requiresAuth: true },
-        // },
+        {
+          path: '/jabatan',
+          name: 'jabatan',
+          component: () => import('@/modules/Jabatan/views/JabatanPage.vue'),
+          meta: { requiresAuth: true },
+        },
         // Tambah rute lain di sini
       ],
     },
