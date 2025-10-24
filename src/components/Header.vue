@@ -138,6 +138,7 @@ import { ref, onMounted, onUpdated, onBeforeUnmount, nextTick } from "vue";
 import feather from "feather-icons";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore"; // 💬 ambil auth store
+import { AVATAR_BASE_URL } from "@/composables/useBase";
 /* =======================
    📅 State & Refs
 ======================= */
@@ -172,7 +173,7 @@ const fetchUserData = () => {
 
     // tentukan foto profil
     if (currentUser.image) {
-      user.value.image_url = `http://localhost:8000/storage/avatar/${currentUser.image}`;
+      user.value.image_url = `${AVATAR_BASE_URL}/${currentUser.image}`;
     } else {
       user.value.image_url = defaultImageUrl;
     }

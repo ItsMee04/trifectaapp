@@ -45,9 +45,9 @@ export const jabatanService = {
   },
 
   // Menghapus data jabatan
-  async deleteJabatan(id) {
+  async deleteJabatan(payload) {
     try {
-      const response = await apiClient.delete(`/jabatan/deleteJabatan/${id}`)
+      const response = await apiClient.post("/jabatan/deleteJabatan", payload)
       return response.data
     } catch (error) {
       throw error

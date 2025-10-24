@@ -38,6 +38,12 @@ const router = createRouter({
           component: () => import('@/modules/Jabatan/views/JabatanPage.vue'),
           meta: { requiresAuth: true },
         },
+        {
+          path: '/pegawai',
+          name: 'pegawai',
+          component: () => import('@/modules/Pegawai/views/PegawaiPage.vue'),
+          meta: { requiresAuth: true },
+        },
         // Tambah rute lain di sini
       ],
     },
