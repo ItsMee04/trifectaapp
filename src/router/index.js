@@ -44,6 +44,18 @@ const router = createRouter({
           component: () => import('@/modules/Pegawai/views/PegawaiPage.vue'),
           meta: { requiresAuth: true },
         },
+        {
+          path: '/role',
+          name: 'role',
+          component: () => import('@/modules/Role/views/RolePage.vue'),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/user',
+          name: 'user',
+          component: () => import('@/modules/User/views/UserPage.vue'),
+          meta: { requiresAuth: true },
+        },
         // Tambah rute lain di sini
       ],
     },
