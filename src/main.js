@@ -8,6 +8,10 @@ import Vue3Toastify, { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 // ----------------------------------------
 
+// Impor vue-simplebar
+import SimpleBar from 'simplebar-vue'
+import 'simplebar/dist/simplebar.min.css'
+
 import './assets/plugins/fontawesome/css/fontawesome.min.css'
 import './assets/plugins/fontawesome/css/all.min.css'
 
@@ -21,6 +25,11 @@ import App from './App.vue'
 import router from './router'
 
 const app = createApp(App)
+// ----------------------------------------------------
+// Tambahkan pendaftaran global di sini
+// Ini memastikan komponen SimpleBar tersedia di mana saja
+app.component('VueSimplebar', SimpleBar)
+// ----------------------------------------------------
 
 // ----------------------------------------
 // --- Daftarkan Plugin Toastify ---
@@ -33,6 +42,8 @@ const toastOptions = {
 
 app.use(Vue3Toastify, toastOptions)
 // ----------------------------------------
+
+
 
 // --- Inisialisasi dan Konfigurasi Pinia ---
 const pinia = createPinia()

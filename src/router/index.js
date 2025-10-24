@@ -1,11 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/authStore' // Import Pinia Store
+import { useAuthStore } from '@/stores/authStore'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // --- 0. Rute Root (New) ---
-    // Jika user mengakses /, akan diarahkan ke LoginPage.vue, tetapi guard akan menanganinya
+    // --- 0. Root ke login ---
     {
       path: '/',
       name: 'root',
@@ -13,61 +12,68 @@ const router = createRouter({
       meta: { requiresGuest: true },
     },
 
-    // --- 1. Rute Otentikasi (Diblokir jika sudah login) ---
+    // --- 1. Auth routes ---
     {
       path: '/login',
       name: 'login',
       component: () => import('@/modules/Auth/views/LoginPage.vue'),
       meta: { requiresGuest: true },
     },
-    // Jika Anda memiliki halaman register, tambahkan di sini dengan meta: { requiresGuest: true }
-    // ---------------------------------------------------------------------
 
-    // --- 2. Rute Aplikasi Utama (Memerlukan Login) ---
-    // {
-    //   path: '/dashboard',
-    //   name: 'dashboard',
-    //   component: () => import('@/modules/Dashboard/views/DashboardPage.vue'), // Asumsi lokasi modul Dashboard
-    //   meta: { requiresAuth: true }, // Rute yang memerlukan login
-    // },
-    // Tambahkan rute aplikasi lain seperti /settings, /inventory, dll.
+    // --- 2. Protected routes (harus login) ---
+    {
+      path: '/app',
+      component: () => import('@/layouts/MainLayouts.vue'), // Layout utama setelah login
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: '/dashboard',
+          name: 'dashboard',
+          component: () => import('@/modules/Dashboard/views/DashboardPage.vue'),
+          meta: { requiresAuth: true },
+        },
+        // {
+        //   path: 'products',
+        //   name: 'products',
+        //   component: () => import('@/modules/Products/views/ProductListPage.vue'),
+        //   meta: { requiresAuth: true },
+        // },
+        // Tambah rute lain di sini
+      ],
+    },
 
-    // --- 3. Rute Catch-all (Opsional, untuk halaman 404) ---
+    // --- 3. Not Found ---
     {
       path: '/:catchAll(.*)',
       name: 'NotFound',
-      component: () => import('@/modules/Errors/NotFoundPage.vue'), // Ganti dengan path ke halaman 404 Anda
+      component: () => import('@/modules/Errors/NotFoundPage.vue'),
     },
   ],
 })
 
-// --- 4. Global Before Guard ---
+/* ---------------------------------------------------
+   🧠 Global Navigation Guard
+--------------------------------------------------- */
 router.beforeEach((to, from, next) => {
-  // Pinia Store harus diakses di dalam guard
   const authStore = useAuthStore()
   const isAuthenticated = authStore.isAuthenticated
 
-  // Cek apakah rute saat ini memerlukan otentikasi atau status guest
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
   const requiresGuest = to.matched.some((record) => record.meta.requiresGuest)
 
-  // Kasus A: Jika rute memerlukan status "belum login" (requiresGuest: true)
-  // Contoh: user sudah login, tapi mencoba ke / atau /login
+  // Jika user SUDAH login tapi ke halaman login → redirect ke dashboard
   if (requiresGuest && isAuthenticated) {
-    // Redirect ke dashboard
     next({ name: 'dashboard' })
     return
   }
 
-  // Kasus B: Jika rute memerlukan login (requiresAuth: true)
-  // Contoh: user belum login, tapi mencoba ke /dashboard
+  // Jika user BELUM login tapi ke halaman yang butuh login → redirect ke login
   if (requiresAuth && !isAuthenticated) {
-    // Redirect ke halaman login
     next({ name: 'login' })
     return
   }
 
-  // Kasus C: Lanjutkan navigasi (tidak ada pembatasan yang dilanggar)
+  // Lanjut navigasi
   next()
 })
 
