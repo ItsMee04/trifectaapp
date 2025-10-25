@@ -33,7 +33,7 @@
             </td>
             <td class="action-table-data">
               <div class="edit-delete-action">
-                <a href="#" class="me-2 edit-icon p-2" data-bs-toggle="modal" data-bs-target="#editDiskonModal"
+                <a class="me-2 edit-icon p-2" data-bs-toggle="tooltip"
                   title="Edit" @click.prevent="$emit('edit', item)">
                   <i data-feather="edit" class="feather-edit"></i>
                 </a>

@@ -1,180 +1,176 @@
-import { ref, onMounted, nextTick } from 'vue'
-import { jenisService } from '@/services/produk/jenisService'
+// modules/JenisProduk/composables/useJenisProdukActions.js
+import { ref } from 'vue'
+import { jenisService } from '../services/jenisService'
 import { useToast } from '@/composables/useToast'
-import { Modal } from 'bootstrap'
 import Swal from 'sweetalert2'
-import { initTooltips } from '@/utilities/tooltip'
-import feather from 'feather-icons'
-
-// URL Dasar untuk gambar icon (Utilitas Pemformatan)
+import { Modal } from 'bootstrap'
 import { STORAGE_BASE_URL } from '@/composables/useBase'
 
-/**
- * Memformat data mentah dari API agar siap ditampilkan di tabel.
- */
-const getFormattedData = (data) => {
-  return data.map((item) => ({
-    ...item,
-    // Tambahkan timestamp untuk mencegah caching pada gambar
-    image: item.image_jenis_produk
-      ? `${STORAGE_BASE_URL}/icon/${item.image_jenis_produk}?t=${new Date().getTime()}`
-      : '/src/assets/img/noimage.jpg',
-    status_label: item.status === 1 ? 'Aktif' : 'Tidak Aktif',
-    status_class: item.status === 1 ? 'bg-soft-success' : 'bg-soft-danger',
-  }))
+const toast = useToast()
+
+const validateForm = (form, errors) => {
+  errors.value = {}
+  if (!form.jenis?.trim()) {
+    errors.value.jenis = 'Jenis produk wajib diisi.'
+    toast.error('Mohon periksa kembali input Anda!')
+    return false
+  }
+  return true
 }
 
-export function useJenisProdukActions(allData, isLoading) {
+export function useJenisProdukActions(allData, renderFeatherIcons, initTooltips) {
+  const isLoading = ref(true)
   const isSubmitting = ref(false)
-  const modalTitle = ref('')
-  const formMethod = ref('store')
-  const toast = useToast()
-  let modalInstance = null
 
-  const form = ref({
-    id: null,
-    nama_jenis_produk: '',
-    image_jenis_produk: null,
-    status: 1,
-    image_url: null,
-  })
+  const form = ref({ jenis: '', image_jenis_produk: null })
+  const editForm = ref({ id: null, jenis: '', image_jenis_produk: null, new_image_file: null })
+  const errors = ref({})
+  const editErrors = ref({})
 
-  onMounted(() => {
-    const modalElement = document.getElementById('jenisProdukModal')
-    if (modalElement) {
-      modalInstance = new Modal(modalElement)
-    }
-  })
+  const imagePreviewUrl = ref(null)
+  const editImageUrl = ref(null)
 
-  // --- Fetch Data ---
+  const resetForm = () => {
+    form.value = { jenis: '', image_jenis_produk: null }
+    errors.value = {}
+    imagePreviewUrl.value = null
+    const modal = Modal.getInstance(document.getElementById('tambahJenisModal'))
+    if (modal) modal.hide()
+  }
+
+  const resetEditForm = () => {
+    editForm.value = { id: null, jenis: '', image_jenis_produk: null, new_image_file: null }
+    editErrors.value = {}
+    editImageUrl.value = null
+  }
+
   const fetchDataFromApi = async () => {
-    // Tampilkan "Memuat data..." jika data kosong atau saat memulai
     if (allData.value.length === 0) {
       isLoading.value = true
     }
-
     try {
-      const rawData = await jenisService.getJenis()
-      allData.value = getFormattedData(rawData)
-
-      await nextTick(() => {
-        feather.replace()
-        initTooltips()
-      })
-    } catch (error) {
-      console.error('Gagal memuat data Jenis Produk:', error)
-      toast.error('Gagal memuat data Jenis Produk.')
+      const data = await jenisService.getJenis()
+      allData.value = data.map(item => ({
+        ...item,
+        image: item.image_jenis_produk
+          ? `${STORAGE_BASE_URL}/icon/${item.image_jenis_produk}?t=${Date.now()}`
+          : '/src/assets/img/noimage.jpg',
+        status_label: item.status === 1 ? 'Aktif' : 'Tidak Aktif',
+        status_class: item.status === 1 ? 'bg-soft-success' : 'bg-soft-danger',
+      }))
+      renderFeatherIcons()
+      initTooltips()
+    } catch (err) {
+      toast.error('Gagal memuat data jenis produk.')
       allData.value = []
     } finally {
       isLoading.value = false
     }
   }
 
-  // --- Actions Modal & Form ---
-  const resetForm = () => {
-    form.value = {
-      id: null,
-      nama_jenis_produk: '',
-      image_jenis_produk: null,
-      status: 1,
-      image_url: null,
-    }
-  }
-
-  const handleOpenModal = (method, data = null) => {
-    resetForm()
-    formMethod.value = method
-    modalTitle.value = method === 'store' ? 'Tambah Jenis Produk Baru' : 'Edit Jenis Produk'
-
-    if (method === 'update' && data) {
-      form.value.id = data.id
-      form.value.nama_jenis_produk = data.nama_jenis_produk
-      form.value.status = data.status
-      form.value.image_url = data.image
-    }
-
-    modalInstance?.show()
-  }
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0]
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
     if (file) {
       form.value.image_jenis_produk = file
-      form.value.image_url = URL.createObjectURL(file)
-    } else {
-      form.value.image_jenis_produk = null
+      imagePreviewUrl.value = URL.createObjectURL(file)
     }
   }
 
-  const handleSubmit = async (event) => {
-    if (isSubmitting.value) return
+  const handleEditImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      editForm.value.new_image_file = file
+      editImageUrl.value = URL.createObjectURL(file)
+    }
+  }
 
+  const handleStoreJenis = async () => {
+    if (!validateForm(form.value, errors)) return
     isSubmitting.value = true
-
     try {
-      const formData = new FormData(event.target)
-      if (formMethod.value === 'store') {
-        formData.delete('id')
-      }
+      const payload = new FormData()
+      payload.append('jenisproduk', form.value.jenis)
+      if (form.value.image_jenis_produk) payload.append('imagejenisproduk', form.value.image_jenis_produk)
 
-      let response
-      if (formMethod.value === 'store') {
-        response = await jenisService.storeJenis(formData)
-      } else {
-        response = await jenisService.updateJenis(form.value.id, formData)
-      }
-
-      if (response.StatusCode === 200) {
-        toast.success(response.Message || 'Data berhasil disimpan!')
-        modalInstance?.hide()
-        resetForm()
-        await fetchDataFromApi()
-      } else {
-        toast.error(response.Message || 'Gagal menyimpan data jenis.')
-      }
-    } catch (error) {
-      const message = error.response?.data?.Message || 'Terjadi kesalahan pada server.'
-      toast.error(message)
+      await jenisService.storeJenis(payload)
+      toast.success('Jenis produk berhasil ditambahkan.')
+      resetForm()
+      await fetchDataFromApi()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal menyimpan jenis produk.')
     } finally {
       isSubmitting.value = false
     }
   }
 
-  const handleDeleteJenis = (id) => {
-    Swal.fire({
-      title: 'Yakin?',
-      text: 'Anda tidak akan dapat mengembalikan ini!',
-      icon: 'warning',
+  const setCurrentEditItem = (item) => {
+    resetEditForm()
+    editForm.value.id = item.id
+    editForm.value.jenis = item.jenis_produk
+    editForm.value.image_jenis_produk = item.image_jenis_produk
+    editImageUrl.value = item.image
+  }
+
+  const handleUpdateJenis = async () => {
+    if (!validateForm(editForm.value, editErrors)) return
+    isSubmitting.value = true
+    try {
+      const payload = new FormData()
+      payload.append('_method', 'PUT')
+      payload.append('jenisproduk', editForm.value.jenis)
+      if (editForm.value.new_image_file) payload.append('imagejenisproduk', editForm.value.new_image_file)
+
+      await jenisService.updateJenis(editForm.value.id, payload)
+      toast.success('Jenis produk berhasil diperbarui.')
+      const modal = Modal.getInstance(document.getElementById('editJenisModal'))
+      if (modal) modal.hide()
+      await fetchDataFromApi()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal memperbarui jenis produk.')
+    } finally {
+      isSubmitting.value = false
+    }
+  }
+
+  const handleDeleteJenis = async (id) => {
+    const result = await Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: 'Data yang dihapus tidak dapat dikembalikan!',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Ya, hapus!',
       cancelButtonText: 'Batal',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const payload = { id: id }
-          const response = await jenisService.deleteJenis(payload)
-          toast.success(response.Message || 'Data berhasil dihapus!')
-          await fetchDataFromApi()
-        } catch (error) {
-          const message =
-            error.response?.data?.Message || 'Terjadi kesalahan saat menghapus data jenis.'
-          toast.error(message)
-        }
-      }
     })
+    if (result.isConfirmed) {
+      try {
+        const payload = { id: id }
+        await jenisService.deleteJenis(payload)
+        toast.success('Jenis produk berhasil dihapus.')
+        await fetchDataFromApi()
+      } catch {
+        toast.error('Gagal menghapus jenis produk.')
+      }
+    }
   }
 
   return {
-    form,
+    isLoading,
     isSubmitting,
-    modalTitle,
-    formMethod,
+    form,
+    editForm,
+    errors,
+    editErrors,
+    imagePreviewUrl,
+    editImageUrl,
     fetchDataFromApi,
-    handleOpenModal,
-    handleFileChange,
-    handleSubmit,
+    handleImageChange,
+    handleEditImageChange,
+    handleStoreJenis,
+    setCurrentEditItem,
+    handleUpdateJenis,
     handleDeleteJenis,
+    resetForm,
+    resetEditForm,
   }
 }

@@ -1,7 +1,7 @@
-// modules/JenisProduk/composables/useJenisProdukData.js
+// modules/Produk/composables/useProdukData.js
 import { ref, computed, watch } from 'vue'
 
-export function useJenisProdukData(allData) {
+export function useProdukData(allData) {
   const currentPage = ref(1)
   const itemsPerPage = ref(5)
   const searchQuery = ref('')
@@ -9,7 +9,7 @@ export function useJenisProdukData(allData) {
   const filteredData = computed(() => {
     if (!searchQuery.value) return allData.value
     const query = searchQuery.value.toLowerCase()
-    return allData.value.filter(item => item.jenis_produk.toLowerCase().includes(query))
+    return allData.value.filter(item => item.nama.toLowerCase().includes(query))
   })
 
   const totalItems = computed(() => filteredData.value.length)
