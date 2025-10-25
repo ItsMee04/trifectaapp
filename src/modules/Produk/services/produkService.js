@@ -56,7 +56,7 @@ export const produkService = {
 
     async deleteProduk(payload) {
         try {
-            const response = await apiClient.post(`/produk/deleteProduk/`, payload);
+            const response = await apiClient.post(`/produk/deleteProduk`, payload);
             return response.data;
         } catch (error) {
             console.error("Gagal menghapus data produk:", error.response?.data);

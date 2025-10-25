@@ -271,7 +271,6 @@ export function useProdukActions(allData, renderFeatherIcons, initTooltips) {
     const result = await Swal.fire({
       title: 'Apakah Anda yakin?',
       text: 'Data yang dihapus tidak dapat dikembalikan!',
-      icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Ya, hapus!',
       cancelButtonText: 'Batal',
