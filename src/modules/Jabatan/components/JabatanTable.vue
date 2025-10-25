@@ -12,7 +12,7 @@
       <tbody>
         <tr v-if="isLoading">
           <td colspan="4" class="text-center">
-            <span class="spinner-border spinner-border-sm me-2 text-info" role="status" aria-hidden="true"></span>
+            <span class="spinner-border spinner-border-sm me-2 text-secondary" role="status" aria-hidden="true"></span>
             Memuat data...
           </td>
         </tr>
