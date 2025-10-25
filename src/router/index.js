@@ -56,6 +56,18 @@ const router = createRouter({
           component: () => import('@/modules/User/views/UserPage.vue'),
           meta: { requiresAuth: true },
         },
+        {
+          path: '/kondisi',
+          name: 'kondisi',
+          component: () => import('@/modules/Kondisi/views/KondisiPage.vue'),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/diskon',
+          name: 'diskon',
+          component: () => import('@/modules/Diskon/views/DiskonPage.vue'),
+          meta: { requiresAuth: true },
+        },
         // Tambah rute lain di sini
       ],
     },
