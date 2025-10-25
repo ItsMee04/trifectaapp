@@ -47,8 +47,8 @@
         </div>
         <div class="card-body">
           <JabatanTable :data="paginatedData" :startIndex="startIndex" :currentPage="currentPage"
-            :totalPages="totalPages" @edit="openEditModal" @delete="handleDeleteJabatan" @go-to-page="goToPage"
-            @prev-page="prevPage" @next-page="nextPage" />
+            :totalPages="totalPages" :isLoading="isLoading" :totalItemsAvailable="allData.length" @edit="openEditModal"
+            @delete="handleDeleteJabatan" @go-to-page="goToPage" @prev-page="prevPage" @next-page="nextPage" />
         </div>
       </div>
     </div>
@@ -103,6 +103,7 @@ const {
   editErrors,
   isSubmitting,
   isEditMode,
+  isLoading,
   fetchDataFromApi,
   handleStoreJabatan,
   handleEditJabatan,

@@ -12,8 +12,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-if="data.length === 0">
-          <td colspan="8" class="text-center">Tidak ada data pegawai yang ditemukan.</td>
+        <tr v-if="isLoading">
+          <td colspan="6" class="text-center">
+            <span class="spinner-border spinner-border-sm me-2 text-secondary" role="status" aria-hidden="true"></span>
+            Memuat data...
+          </td>
+        </tr>
+        <tr v-else-if="totalItemsAvailable === 0">
+          <td colspan="6" class="text-center">Tidak ada data.</td>
         </tr>
         <tr v-else v-for="(item, index) in data" :key="item.id">
           <th scope="row">{{ startIndex + index + 1 }}</th>
@@ -91,6 +97,8 @@ const props = defineProps({
   startIndex: { type: Number, required: true },
   currentPage: { type: Number, required: true },
   totalPages: { type: Number, required: true },
+  isLoading: { type: Boolean, default: false },
+  totalItemsAvailable: { type: Number, required: true },
 });
 
 const emit = defineEmits(['edit', 'delete', 'go-to-page', 'prev-page', 'next-page']);

@@ -10,7 +10,13 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-if="data.length === 0">
+        <tr v-if="isLoading">
+          <td colspan="4" class="text-center">
+            <span class="spinner-border spinner-border-sm me-2 text-secondary" role="status" aria-hidden="true"></span>
+            Memuat data...
+          </td>
+        </tr>
+        <tr v-else-if="totalItemsAvailable === 0">
           <td colspan="4" class="text-center">Tidak ada data.</td>
         </tr>
         <tr v-else v-for="(item, index) in data" :key="item.id">
@@ -36,8 +42,7 @@
                 <i data-feather="edit" class="feather-edit"></i>
               </a>
 
-              <a class="confirm-text p-2" data-bs-toggle="tooltip" title="Hapus"
-                @click.prevent="$emit('delete', item)">
+              <a class="confirm-text p-2" data-bs-toggle="tooltip" title="Hapus" @click.prevent="$emit('delete', item)">
                 <i data-feather="trash-2" class="feather-trash-2"></i>
               </a>
             </div>
@@ -70,6 +75,8 @@ const props = defineProps({
   startIndex: { type: Number, required: true },
   currentPage: { type: Number, required: true },
   totalPages: { type: Number, required: true },
+  isLoading: { type: Boolean, default: false },
+  totalItemsAvailable: { type: Number, required: true },
 });
 
 const emit = defineEmits(['edit', 'delete', 'go-to-page', 'prev-page', 'next-page']);

@@ -4,15 +4,17 @@
       <thead>
         <tr>
           <th scope="col">No.</th>
-          <th scope="col">Jabatan</th>
+          <th scope="col">Pegawai</th>
+          <th scope="col">Role</th>
+          <th scope="col">Email</th>
           <th scope="col">Status</th>
           <th scope="col">Action</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="isLoading">
-          <td colspan="4" class="text-center">
-            <span class="spinner-border spinner-border-sm me-2 text-info" role="status" aria-hidden="true"></span>
+          <td colspan="6" class="text-center">
+            <span class="spinner-border spinner-border-sm me-2 text-secondary" role="status" aria-hidden="true"></span>
             Memuat data...
           </td>
         </tr>
@@ -25,10 +27,20 @@
             <div class="d-flex align-items-center">
               <div>
                 <div class="lh-1">
-                  <span>{{ item.jabatan }}</span>
+                  <span>{{ item.pegawai.nama }}</span>
                 </div>
               </div>
             </div>
+          </td>
+          <td>
+            <span :class="['badge', item.role_class]">
+              <i class="ri-check-fill align-middle me-1"></i>{{ item.role_label }}
+            </span>
+          </td>
+          <td>
+            <span :class="['badge', item.email_class]">
+              <i class="ri-check-fill align-middle me-1"></i>{{ item.email_label }}
+            </span>
           </td>
           <td>
             <span :class="['badge', item.status_class]">
@@ -40,10 +52,6 @@
               <a href="#" class="me-2 edit-icon p-2" data-bs-toggle="tooltip" title="Edit"
                 @click.prevent="$emit('edit', item)">
                 <i data-feather="edit" class="feather-edit"></i>
-              </a>
-
-              <a class="confirm-text p-2" data-bs-toggle="tooltip" title="Hapus" @click.prevent="$emit('delete', item)">
-                <i data-feather="trash-2" class="feather-trash-2"></i>
               </a>
             </div>
           </td>
@@ -79,5 +87,5 @@ const props = defineProps({
   totalItemsAvailable: { type: Number, required: true },
 });
 
-const emit = defineEmits(['edit', 'delete', 'go-to-page', 'prev-page', 'next-page']);
+const emit = defineEmits(['edit', 'go-to-page', 'prev-page', 'next-page']);
 </script>

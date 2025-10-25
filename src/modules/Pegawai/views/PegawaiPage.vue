@@ -50,8 +50,8 @@
         <div class="card-body">
           <!-- Komponen Tabel -->
           <PegawaiTable :data="paginatedData" :startIndex="startIndex" :currentPage="currentPage"
-            :totalPages="totalPages" @edit="openEditModal" @delete="handleDeletePegawai" @go-to-page="goToPage"
-            @prev-page="prevPage" @next-page="nextPage" />
+            :totalPages="totalPages" :isLoading="isLoading" :totalItemsAvailable="allData.length" @edit="openEditModal"
+            @delete="handleDeletePegawai" @go-to-page="goToPage" @prev-page="prevPage" @next-page="nextPage" />
         </div>
       </div>
     </div>
@@ -105,7 +105,7 @@ const { currentPage, searchQuery, paginatedData, startIndex, totalPages, goToPag
 // 2. Actions (CRUD, Form State, Image Preview)
 const {
   form, errors, imagePreviewUrl, editForm, editErrors,
-  isSubmitting, isEditMode, editImageUrl,
+  isSubmitting, isEditMode, editImageUrl, isLoading,
   fetchDataFromApi, handleStorePegawai, handleImageChange,
   handleUpdatePegawai, handleEditImageChange, setCurrentEditItem,
   handleDeletePegawai, resetForm

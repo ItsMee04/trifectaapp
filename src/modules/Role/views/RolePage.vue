@@ -46,9 +46,9 @@
           </div>
         </div>
         <div class="card-body">
-          <RoleTable :data="paginatedData" :startIndex="startIndex" :currentPage="currentPage"
-            :totalPages="totalPages" @edit="openEditModal" @delete="handleDeleteRole" @go-to-page="goToPage"
-            @prev-page="prevPage" @next-page="nextPage" />
+          <RoleTable :data="paginatedData" :startIndex="startIndex" :currentPage="currentPage" :totalPages="totalPages"
+            :isLoading="isLoading" :totalItemsAvailable="allData.length" @edit="openEditModal"
+            @delete="handleDeleteRole" @go-to-page="goToPage" @prev-page="prevPage" @next-page="nextPage" />
         </div>
       </div>
     </div>
@@ -103,6 +103,7 @@ const {
   editErrors,
   isSubmitting,
   isEditMode,
+  isLoading,
   fetchDataFromApi,
   handleStoreRole,
   handleEditRole,
